@@ -49,7 +49,16 @@ public class PlayerHealth : MonoBehaviour
 
     public void TakeDamage(float damage)
     {
-        currentHealth -= damage;
+        // Consultamos la armadura del stat controller si existe
+        PlayerStatController stats = GetComponent<PlayerStatController>();
+        float finalDamage = damage;
+
+        if (stats != null)
+        {
+            finalDamage = Mathf.Max(1f, damage - stats.armor); // Al menos siempre recibe 1 de daño mínimo
+        }
+
+        currentHealth -= finalDamage;
         lastDamageTime = Time.time;
 
         UpdateHealthBar();

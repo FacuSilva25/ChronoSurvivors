@@ -1,9 +1,8 @@
 using UnityEngine;
 
-public class AutoWeapon : MonoBehaviour
+public class AutoWeapon : WeaponBase
 {
     [Header("Configuración")]
-    public WeaponData weaponData; // Arrastraremos WD_TeslaCoil aquí
     public LayerMask enemyLayer;  // Filtro para buscar solo enemigos
 
     private float nextFireTime;

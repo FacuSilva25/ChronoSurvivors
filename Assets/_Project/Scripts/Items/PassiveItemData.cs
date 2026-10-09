@@ -19,6 +19,8 @@ public class PassiveItemData : ScriptableObject
         AttackSpeed,
         MoveSpeed,
         MagnetRadius,
-        MaxHealth
+        MaxHealth,
+        Armor,
+        CooldownReduction
     }
 }

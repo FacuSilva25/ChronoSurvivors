@@ -33,8 +33,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.25}
   m_AnchorMax: {x: 1, y: 0.75}
-  m_AnchoredPosition: {x: 0.060001373, y: 0}
-  m_SizeDelta: {x: -2.94, y: 0}
+  m_AnchoredPosition: {x: -0.0000076293945, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1646153640011774330
 GameObject:
@@ -292,7 +292,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+  m_Sprite: {fileID: 7482667652216324306, guid: 4cefc99663d01ee4e853d112f801cfb3, type: 3}
   m_Type: 3
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -367,8 +367,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
-  m_Type: 1
+  m_Sprite: {fileID: 7482667652216324306, guid: 4cefc99663d01ee4e853d112f801cfb3, type: 3}
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -394,6 +394,7 @@ GameObject:
   - component: {fileID: 3198831055408587640}
   - component: {fileID: 1276122491273531014}
   - component: {fileID: 4705092318739291864}
+  - component: {fileID: 6867938754476632680}
   m_Layer: 7
   m_Name: Player
   m_TagString: Player
@@ -575,6 +576,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AutoWeapon
   weaponData: {fileID: 11400000, guid: e9dbb54fbbaad4c4cb6dfbd272d65263, type: 2}
+  currentLevel: 1
+  maxLevel: 5
   enemyLayer:
     serializedVersion: 2
     m_Bits: 64
@@ -632,3 +635,18 @@ MonoBehaviour:
   magnetRadiusMultiplier: 1
   maxHealthMultiplier: 1
   acquiredPassives: []
+--- !u!114 &6867938754476632680
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6975851342838451961}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9d8d7c1967b4ae4e912af80b21520e7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerInventory
+  equippedWeapons:
+  - {fileID: 0}
+  equippedPassives: []

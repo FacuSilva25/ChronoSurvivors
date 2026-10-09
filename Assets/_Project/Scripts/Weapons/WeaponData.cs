@@ -5,6 +5,8 @@ using UnityEngine;
 public class WeaponData : ScriptableObject
 {
     [Header("Información General")]
+    [Header("Prefab del Arma (Componente en el Jugador)")]
+    public GameObject weaponPrefab; // El prefab que tiene el script AutoWeapon, DaggerWeapon, etc.
     public string weaponName;
     [TextArea]
     public string description;

@@ -13,6 +13,9 @@ public class PlayerStats : MonoBehaviour
     public Slider xpSlider;
     public TextMeshProUGUI levelText;
 
+    [Header("Referencias UI")]
+    public LevelUpUI levelUpUI; // Asignar en el Inspector
+
     void Start()
     {
         UpdateUI();
@@ -33,11 +36,17 @@ public class PlayerStats : MonoBehaviour
 
     void LevelUp()
     {
-        currentExperience -= experienceToNextLevel; // Conserva la XP sobrante (reinicia la barra visualmente)
+        currentExperience -= experienceToNextLevel;
         currentLevel++;
-        experienceToNextLevel = Mathf.RoundToInt(experienceToNextLevel * 1.5f); // La meta crece
+        experienceToNextLevel = Mathf.RoundToInt(experienceToNextLevel * 1.5f);
 
         Debug.Log("¡Subiste al nivel " + currentLevel + "!");
+
+        // Abrimos la pantalla de mejoras
+        if (levelUpUI != null)
+        {
+            levelUpUI.OpenLevelUpScreen();
+        }
     }
 
     void UpdateUI()

@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5866cfb3c56a5714f88ac9e2107a569b, type: 3}
-  m_Name: WD_TeslaCoil
+  m_Name: WD_PuddleAcid
   m_EditorClassIdentifier: Assembly-CSharp::WeaponData
-  weaponPrefab: {fileID: 6257070684339024299, guid: 9345584511197ec4ebf8ed4534c2d03e, type: 3}
-  weaponName: Bobina Relampago
+  weaponPrefab: {fileID: 4820084545509671171, guid: dc88063e9887b834bac2c5f902e2af86, type: 3}
+  weaponName: Acido
   description: 
-  projectilePrefab: {fileID: 6257070684339024299, guid: 9345584511197ec4ebf8ed4534c2d03e, type: 3}
-  damage: 15
-  fireRate: 2
-  projectileSpeed: 10
-  attackRange: 6
+  projectilePrefab: {fileID: 4820084545509671171, guid: dc88063e9887b834bac2c5f902e2af86, type: 3}
+  damage: 10
+  fireRate: 1.5
+  projectileSpeed: 12
+  attackRange: 8

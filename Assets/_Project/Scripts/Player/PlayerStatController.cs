@@ -10,17 +10,17 @@ public class PlayerStatController : MonoBehaviour
     public float magnetRadiusMultiplier = 1f;
     public float maxHealthMultiplier = 1f;
 
+    [Header("Defensas y Tiempos")]
+    public float armor = 0f;                   // Puntos planos de daño absorbidos
+    public float cooldownReduction = 0f;       // Porcentaje de reducción (ej. 0.15 = 15% menos cooldown)
+
     [Header("Inventario Pasivo")]
-    // Lista para llevar el registro de qué items hemos recolectado
     public List<PassiveItemData> acquiredPassives = new List<PassiveItemData>();
 
-    // Este método será llamado desde la pantalla de subir de nivel
     public void ApplyPassiveItem(PassiveItemData newItem)
     {
         acquiredPassives.Add(newItem);
 
-        // Aumentamos el multiplicador correspondiente sumando el valor del objeto
-        // Ej: Si el multiplicador es 1f y el boost es 0.15f, el nuevo valor es 1.15f (115%)
         switch (newItem.statBoosted)
         {
             case PassiveItemData.StatToBoost.Damage:
@@ -37,8 +37,13 @@ public class PlayerStatController : MonoBehaviour
                 break;
             case PassiveItemData.StatToBoost.MaxHealth:
                 maxHealthMultiplier += newItem.boostValue;
-                // Si aumentamos la vida máxima, avisamos al script de salud
                 GetComponent<PlayerHealth>()?.UpdateMaxHealth(maxHealthMultiplier);
+                break;
+            case PassiveItemData.StatToBoost.Armor:
+                armor += newItem.boostValue;
+                break;
+            case PassiveItemData.StatToBoost.CooldownReduction:
+                cooldownReduction = Mathf.Clamp(cooldownReduction + newItem.boostValue, 0f, 0.5f); // Tope de 50% de reducción
                 break;
         }
 
