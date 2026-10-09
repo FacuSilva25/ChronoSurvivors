@@ -3,13 +3,15 @@ using System.Collections.Generic;
 
 public class PlayerInventory : MonoBehaviour
 {
-    [Header("Límites de Ranuras")]
     public const int MAX_WEAPONS = 5;
     public const int MAX_PASSIVES = 5;
 
     [Header("Inventario Activo")]
-    public List<WeaponBase> equippedWeapons = new List<WeaponBase>();
+    public List<Weapon> equippedWeapons = new List<Weapon>();
+
+    // Almacenamos ScriptableObjects nativos y sus niveles en listas estándar de Unity
     public List<PassiveItemData> equippedPassives = new List<PassiveItemData>();
+    public List<int> passiveLevels = new List<int>();
 
     private PlayerStatController statController;
 
@@ -19,82 +21,82 @@ public class PlayerInventory : MonoBehaviour
     }
 
     #region Gestión de Armas
-
     public bool CanEquipOrUpgradeWeapon(WeaponData weaponData)
     {
         if (weaponData == null) return false;
-
-        // Limpiamos referencias nulas accidentales en la lista
         equippedWeapons.RemoveAll(w => w == null);
 
-        // Buscamos si ya la tiene, ignorando armas que no tengan weaponData asignado
-        WeaponBase existing = equippedWeapons.Find(w => w != null && w.weaponData == weaponData);
+        Weapon existing = equippedWeapons.Find(w => w != null && w.weaponData == weaponData);
         if (existing != null)
         {
-            return existing.currentLevel < existing.maxLevel;
+            return existing.weaponData != null && existing.currentLevel < existing.weaponData.maxLevel;
         }
 
-        // Si no la tiene, verificamos si queda espacio en el inventario
         return equippedWeapons.Count < MAX_WEAPONS;
     }
 
     public void AddOrUpgradeWeapon(WeaponData weaponData)
     {
         if (weaponData == null) return;
-
         equippedWeapons.RemoveAll(w => w == null);
-        WeaponBase existing = equippedWeapons.Find(w => w != null && w.weaponData == weaponData);
 
+        Weapon existing = equippedWeapons.Find(w => w != null && w.weaponData == weaponData);
         if (existing != null)
         {
             existing.LevelUp();
         }
-        else
+        else if (equippedWeapons.Count < MAX_WEAPONS)
         {
-            if (equippedWeapons.Count < MAX_WEAPONS)
+            if (weaponData.weaponPrefab == null) return;
+
+            GameObject newWeaponObj = Instantiate(weaponData.weaponPrefab, transform);
+            Weapon weaponComponent = newWeaponObj.GetComponent<Weapon>();
+            if (weaponComponent != null)
             {
-                if (weaponData.weaponPrefab == null)
-                {
-                    Debug.LogError($"El arma {weaponData.weaponName} no tiene asignado su Weapon Prefab en el ScriptableObject.");
-                    return;
-                }
-
-                GameObject newWeaponObj = Instantiate(weaponData.weaponPrefab, transform);
-                WeaponBase weaponComponent = newWeaponObj.GetComponent<WeaponBase>();
-
-                if (weaponComponent != null)
-                {
-                    weaponComponent.weaponData = weaponData;
-                    equippedWeapons.Add(weaponComponent);
-                    Debug.Log($"Equipada nueva arma: {weaponData.weaponName} ({equippedWeapons.Count}/{MAX_WEAPONS})");
-                }
+                weaponComponent.weaponData = weaponData;
+                equippedWeapons.Add(weaponComponent);
             }
         }
     }
-
     #endregion
 
-    #region Gestión de Habilidades Pasivas
-
-    public bool CanEquipPassive(PassiveItemData passiveData)
+    #region Gestión de Pasivas
+    public bool CanEquipOrUpgradePassive(PassiveItemData passiveData)
     {
-        // Límite de 5 pasivas
+        if (passiveData == null) return false;
+
+        int index = equippedPassives.IndexOf(passiveData);
+        if (index != -1)
+        {
+            return passiveLevels[index] < passiveData.maxLevel;
+        }
+
         return equippedPassives.Count < MAX_PASSIVES;
     }
 
-    public void AddPassive(PassiveItemData passiveData)
+    public void AddOrUpgradePassive(PassiveItemData passiveData)
     {
-        if (equippedPassives.Count < MAX_PASSIVES)
+        if (passiveData == null) return;
+
+        int index = equippedPassives.IndexOf(passiveData);
+        if (index != -1)
+        {
+            if (passiveLevels[index] < passiveData.maxLevel)
+            {
+                passiveLevels[index]++;
+                statController?.RecalculateStats(equippedPassives, passiveLevels);
+            }
+        }
+        else if (equippedPassives.Count < MAX_PASSIVES)
         {
             equippedPassives.Add(passiveData);
-            statController?.ApplyPassiveItem(passiveData);
-            Debug.Log($"Equipada nueva pasiva: {passiveData.itemName} ({equippedPassives.Count}/{MAX_PASSIVES})");
-        }
-        else
-        {
-            Debug.LogWarning("Inventario de pasivas lleno (5/5).");
+            passiveLevels.Add(1);
+            statController?.RecalculateStats(equippedPassives, passiveLevels);
         }
     }
 
+    // Métodos para compatibilidad con llamadas anteriores de LevelUpUI
+    public bool CanEquipPassive(PassiveItemData passiveData) => CanEquipOrUpgradePassive(passiveData);
+    public void AddPassive(PassiveItemData passiveData) => AddOrUpgradePassive(passiveData);
     #endregion
 }

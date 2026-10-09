@@ -2,42 +2,43 @@ using UnityEngine;
 
 public class Projectile : MonoBehaviour
 {
-    private Vector2 moveDirection;
-    private float moveSpeed;
-    private float projectileDamage;
-    public float lifeTime = 3f; // Tiempo máximo de vida para evitar que consuma memoria
+    protected Vector2 moveDirection;
+    protected float speed;
+    protected float damage;
+    protected int pierce;
 
-    // Este método recibirá los datos que configuraste en tu ScriptableObject
-    public void Initialize(Vector2 direction, float speed, float damage)
+    public virtual void Initialize(Vector2 direction, float speed, float damage, int pierce = 1, float area = 1f, float lifeTime = 3f)
     {
-        moveDirection = direction;
-        moveSpeed = speed;
-        projectileDamage = damage;
+        this.moveDirection = direction.normalized;
+        this.speed = speed;
+        this.damage = damage;
+        this.pierce = pierce;
 
-        // Destrucción de seguridad si la bala no choca con nada
+        // Escala con la estadística de área
+        transform.localScale = Vector3.one * area;
+
+        // Rota hacia el movimiento
+        float angle = Mathf.Atan2(moveDirection.y, moveDirection.x) * Mathf.Rad2Deg;
+        transform.rotation = Quaternion.Euler(0, 0, angle);
+
         Destroy(gameObject, lifeTime);
     }
 
-    void Update()
+    protected virtual void Update()
     {
-        // Mueve el proyectil continuamente en la dirección asignada
-        transform.Translate(moveDirection * moveSpeed * Time.deltaTime);
+        transform.Translate(moveDirection * speed * Time.deltaTime, Space.World);
     }
 
-    void OnTriggerEnter2D(Collider2D other)
+    protected virtual void OnTriggerEnter2D(Collider2D other)
     {
         if (other.CompareTag("Enemy"))
         {
-            // Buscamos el componente de salud en el enemigo impactado
-            EnemyHealth enemyHealth = other.GetComponent<EnemyHealth>();
-
-            if (enemyHealth != null)
+            other.GetComponent<EnemyHealth>()?.TakeDamage(damage);
+            pierce--;
+            if (pierce <= 0)
             {
-                enemyHealth.TakeDamage(projectileDamage);
+                Destroy(gameObject);
             }
-
-            // El proyectil siempre se destruye tras impactar
-            Destroy(gameObject);
         }
     }
 }

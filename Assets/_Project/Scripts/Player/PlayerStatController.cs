@@ -3,50 +3,78 @@ using System.Collections.Generic;
 
 public class PlayerStatController : MonoBehaviour
 {
-    [Header("Multiplicadores (1 = 100%)")]
-    public float damageMultiplier = 1f;
-    public float attackSpeedMultiplier = 1f;
-    public float moveSpeedMultiplier = 1f;
-    public float magnetRadiusMultiplier = 1f;
-    public float maxHealthMultiplier = 1f;
+    [Header("Estadísticas Base (Sin pasivas)")]
+    public float baseDamageMultiplier = 1f;
+    public float baseAttackSpeedMultiplier = 1f;
+    public float baseMoveSpeedMultiplier = 1f;
+    public float baseMagnetRadiusMultiplier = 1f;
+    public float baseMaxHealthMultiplier = 1f;
+    public float baseArmor = 0f;
+    public float baseCooldownReduction = 0f;
 
-    [Header("Defensas y Tiempos")]
-    public float armor = 0f;                   // Puntos planos de daño absorbidos
-    public float cooldownReduction = 0f;       // Porcentaje de reducción (ej. 0.15 = 15% menos cooldown)
+    [Header("Estadísticas Actuales Calculadas")]
+    public float damageMultiplier { get; private set; } = 1f;
+    public float attackSpeedMultiplier { get; private set; } = 1f;
+    public float moveSpeedMultiplier { get; private set; } = 1f;
+    public float magnetRadiusMultiplier { get; private set; } = 1f;
+    public float maxHealthMultiplier { get; private set; } = 1f;
+    public float armor { get; private set; } = 0f;
+    public float cooldownReduction { get; private set; } = 0f;
 
-    [Header("Inventario Pasivo")]
-    public List<PassiveItemData> acquiredPassives = new List<PassiveItemData>();
-
-    public void ApplyPassiveItem(PassiveItemData newItem)
+    void Awake()
     {
-        acquiredPassives.Add(newItem);
+        ResetToBaseStats();
+    }
 
-        switch (newItem.statBoosted)
+    public void ResetToBaseStats()
+    {
+        damageMultiplier = baseDamageMultiplier;
+        attackSpeedMultiplier = baseAttackSpeedMultiplier;
+        moveSpeedMultiplier = baseMoveSpeedMultiplier;
+        magnetRadiusMultiplier = baseMagnetRadiusMultiplier;
+        maxHealthMultiplier = baseMaxHealthMultiplier;
+        armor = baseArmor;
+        cooldownReduction = baseCooldownReduction;
+    }
+
+    // Se ejecuta cada vez que adquieres o subes de nivel una pasiva
+    public void RecalculateStats(List<PassiveItemData> passives, List<int> levels)
+    {
+        ResetToBaseStats();
+
+        for (int i = 0; i < passives.Count; i++)
         {
-            case PassiveItemData.StatToBoost.Damage:
-                damageMultiplier += newItem.boostValue;
-                break;
-            case PassiveItemData.StatToBoost.AttackSpeed:
-                attackSpeedMultiplier += newItem.boostValue;
-                break;
-            case PassiveItemData.StatToBoost.MoveSpeed:
-                moveSpeedMultiplier += newItem.boostValue;
-                break;
-            case PassiveItemData.StatToBoost.MagnetRadius:
-                magnetRadiusMultiplier += newItem.boostValue;
-                break;
-            case PassiveItemData.StatToBoost.MaxHealth:
-                maxHealthMultiplier += newItem.boostValue;
-                GetComponent<PlayerHealth>()?.UpdateMaxHealth(maxHealthMultiplier);
-                break;
-            case PassiveItemData.StatToBoost.Armor:
-                armor += newItem.boostValue;
-                break;
-            case PassiveItemData.StatToBoost.CooldownReduction:
-                cooldownReduction = Mathf.Clamp(cooldownReduction + newItem.boostValue, 0f, 0.5f); // Tope de 50% de reducción
-                break;
-        }
+            PassiveItemData data = passives[i];
+            if (data == null) continue;
 
-        Debug.Log($"¡{newItem.itemName} adquirido! Se aplicó un boost a {newItem.statBoosted}.");
+            int level = levels[i];
+            float boost = data.GetBoostAtLevel(level);
+
+            switch (data.statBoosted)
+            {
+                case PassiveItemData.StatToBoost.Damage:
+                    damageMultiplier += boost;
+                    break;
+                case PassiveItemData.StatToBoost.AttackSpeed:
+                    attackSpeedMultiplier += boost;
+                    break;
+                case PassiveItemData.StatToBoost.MoveSpeed:
+                    moveSpeedMultiplier += boost;
+                    break;
+                case PassiveItemData.StatToBoost.MagnetRadius:
+                    magnetRadiusMultiplier += boost;
+                    break;
+                case PassiveItemData.StatToBoost.MaxHealth:
+                    maxHealthMultiplier += boost;
+                    GetComponent<PlayerHealth>()?.UpdateMaxHealth(maxHealthMultiplier);
+                    break;
+                case PassiveItemData.StatToBoost.Armor:
+                    armor += boost;
+                    break;
+                case PassiveItemData.StatToBoost.CooldownReduction:
+                    cooldownReduction = Mathf.Clamp(cooldownReduction + boost, 0f, 0.5f);
+                    break;
+            }
+        }
     }
 }

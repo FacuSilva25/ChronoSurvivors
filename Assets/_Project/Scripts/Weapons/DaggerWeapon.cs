@@ -1,54 +1,46 @@
 using UnityEngine;
 
-public class DaggerWeapon : WeaponBase
+public class DaggerWeapon : ProjectileWeapon
 {
-    [Header("Configuración")]
-    public GameObject daggerPrefab;
-    public float attackCooldown = 1.2f;
-    public float detectionRadius = 8f;
     public LayerMask enemyLayer;
 
-    private float timer;
-
-    void Update()
+    protected override void SpawnProjectile()
     {
-        timer += Time.deltaTime;
-        if (timer >= attackCooldown)
+        if (currentStats.projectilePrefab == null) return;
+
+        // Busca el enemigo más cercano o dispara hacia el frente
+        Vector2 targetDir = FindTargetDirection();
+
+        GameObject obj = Instantiate(currentStats.projectilePrefab, transform.position, Quaternion.identity);
+        Projectile proj = obj.GetComponent<Projectile>();
+        if (proj != null)
         {
-            FireAtNearestEnemy();
-            timer = 0f;
+            proj.Initialize(
+                targetDir,
+                currentStats.speed,
+                GetDamage(),
+                currentStats.pierce,
+                GetArea()
+            );
         }
     }
 
-    void FireAtNearestEnemy()
+    Vector2 FindTargetDirection()
     {
-        Collider2D[] enemies = Physics2D.OverlapCircleAll(transform.position, detectionRadius, enemyLayer);
-        if (enemies.Length == 0) return;
+        Collider2D[] enemies = Physics2D.OverlapCircleAll(transform.position, 10f, enemyLayer);
+        if (enemies.Length == 0) return transform.right;
 
-        // Busca el enemigo más cercano
         Transform nearest = null;
-        float minDistance = Mathf.Infinity;
+        float minDist = Mathf.Infinity;
         foreach (var col in enemies)
         {
             float dist = Vector2.Distance(transform.position, col.transform.position);
-            if (dist < minDistance)
+            if (dist < minDist)
             {
-                minDistance = dist;
+                minDist = dist;
                 nearest = col.transform;
             }
         }
-
-        if (nearest != null)
-        {
-            Vector2 dir = nearest.position - transform.position;
-            GameObject dagger = Instantiate(daggerPrefab, transform.position, Quaternion.identity);
-            dagger.GetComponent<PiercingProjectile>().Setup(dir);
-        }
-    }
-
-    void OnDrawGizmosSelected()
-    {
-        Gizmos.color = Color.cyan;
-        Gizmos.DrawWireSphere(transform.position, detectionRadius);
+        return nearest != null ? (nearest.position - transform.position).normalized : (Vector2)transform.right;
     }
 }

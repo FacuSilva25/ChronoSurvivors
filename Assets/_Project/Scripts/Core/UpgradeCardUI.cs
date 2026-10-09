@@ -22,7 +22,7 @@ public class UpgradeCardUI : MonoBehaviour
         levelUpManager = manager;
 
         titleText.text = isUpgrade ? $"{weapon.weaponName} (Nvl. {targetLevel})" : $"{weapon.weaponName} (NUEVA)";
-        descriptionText.text = weapon.description;
+        descriptionText.text = weapon.baseStats.description;
 
         selectButton.onClick.RemoveAllListeners();
         selectButton.onClick.AddListener(SelectThisOption);

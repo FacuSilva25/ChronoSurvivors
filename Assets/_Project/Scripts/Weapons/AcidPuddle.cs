@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class AcidPuddle : MonoBehaviour
 {
@@ -6,7 +7,7 @@ public class AcidPuddle : MonoBehaviour
     public float tickInterval = 0.4f;
     public float puddleDuration = 4f;
 
-    private float timer;
+    private Dictionary<Collider2D, float> hitTimers = new Dictionary<Collider2D, float>();
 
     void Start()
     {
@@ -17,12 +18,19 @@ public class AcidPuddle : MonoBehaviour
     {
         if (other.CompareTag("Enemy"))
         {
-            timer += Time.deltaTime;
-            if (timer >= tickInterval)
+            if (!hitTimers.ContainsKey(other) || Time.time >= hitTimers[other] + tickInterval)
             {
                 other.GetComponent<EnemyHealth>()?.TakeDamage(damagePerTick);
-                timer = 0f;
+                hitTimers[other] = Time.time;
             }
+        }
+    }
+
+    void OnTriggerExit2D(Collider2D other)
+    {
+        if (hitTimers.ContainsKey(other))
+        {
+            hitTimers.Remove(other);
         }
     }
 }

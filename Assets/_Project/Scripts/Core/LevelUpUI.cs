@@ -36,7 +36,7 @@ public class LevelUpUI : MonoBehaviour
         List<PassiveItemData> validPassives = new List<PassiveItemData>();
         foreach (var p in allAvailablePassives)
         {
-            if (playerInventory.CanEquipPassive(p))
+            if (playerInventory.CanEquipOrUpgradePassive(p))
             {
                 validPassives.Add(p);
             }
@@ -55,7 +55,7 @@ public class LevelUpUI : MonoBehaviour
                 WeaponData selected = validWeapons[Random.Range(0, validWeapons.Count)];
 
                 // Comprobamos si ya la tiene para marcarla como mejora de nivel
-                WeaponBase existing = playerInventory.equippedWeapons.Find(w => w.weaponData == selected);
+                Weapon existing = playerInventory.equippedWeapons.Find(w => w.weaponData == selected);
                 bool isUpgrade = existing != null;
                 int targetLevel = isUpgrade ? existing.currentLevel + 1 : 1;
 
@@ -84,7 +84,7 @@ public class LevelUpUI : MonoBehaviour
 
     public void ApplyPassiveSelection(PassiveItemData passive)
     {
-        playerInventory.AddPassive(passive);
+        playerInventory.AddOrUpgradePassive(passive);
         CloseLevelUpScreen();
     }
 
